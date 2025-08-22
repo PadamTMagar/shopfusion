@@ -1,0 +1,205 @@
+-- Shopfusion Database Schema
+
+
+CREATE DATABASE ecommerce_demo;
+USE ecommerce_demo;
+
+-- Users table (handles all user types)
+CREATE TABLE users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    address TEXT,
+    role ENUM('admin', 'trader', 'customer') NOT NULL,
+    status ENUM('active', 'pending', 'disabled') DEFAULT 'active',
+    violation_count INT DEFAULT 0,
+    loyalty_points INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Shops table
+CREATE TABLE shops (
+    shop_id INT PRIMARY KEY AUTO_INCREMENT,
+    trader_id INT NOT NULL,
+    shop_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    status ENUM('active', 'inactive') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (trader_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Categories table
+CREATE TABLE categories (
+    category_id INT PRIMARY KEY AUTO_INCREMENT,
+    category_name VARCHAR(50) NOT NULL,
+    description TEXT
+);
+
+-- Products table
+CREATE TABLE products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    shop_id INT NOT NULL,
+    category_id INT NOT NULL,
+    product_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL,
+    stock_quantity INT DEFAULT 0,
+    image_path VARCHAR(255),
+    rating DECIMAL(3, 2) DEFAULT 0.00,
+    total_reviews INT DEFAULT 0,
+    status ENUM('active', 'inactive') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (shop_id) REFERENCES shops(shop_id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+-- Product reviews table
+CREATE TABLE reviews (
+    review_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    customer_id INT NOT NULL,
+    rating INT CHECK (rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Orders table
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_id INT NOT NULL,
+    total_amount DECIMAL(10, 2) NOT NULL,
+    payment_status ENUM('pending', 'completed', 'failed') DEFAULT 'pending',
+    payment_method VARCHAR(50),
+    paypal_transaction_id VARCHAR(100),
+    shipping_address TEXT NOT NULL,
+    order_status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
+    promo_code VARCHAR(20),
+    discount_amount DECIMAL(10, 2) DEFAULT 0.00,
+    points_used INT DEFAULT 0,
+    points_earned INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES users(user_id)
+);
+
+-- Order items table (links orders to products by shop)
+CREATE TABLE order_items (
+    item_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    shop_id INT NOT NULL,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10, 2) NOT NULL,
+    subtotal DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(product_id),
+    FOREIGN KEY (shop_id) REFERENCES shops(shop_id)
+);
+
+-- Promo codes table
+CREATE TABLE promo_codes (
+    promo_id INT PRIMARY KEY AUTO_INCREMENT,
+    code VARCHAR(20) UNIQUE NOT NULL,
+    discount_type ENUM('percentage', 'fixed') NOT NULL,
+    discount_value DECIMAL(10, 2) NOT NULL,
+    min_order_amount DECIMAL(10, 2) DEFAULT 0.00,
+    max_uses INT DEFAULT NULL,
+    current_uses INT DEFAULT 0,
+    start_date DATE,
+    end_date DATE,
+    status ENUM('active', 'inactive') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Violation reports table
+CREATE TABLE violations (
+    violation_id INT PRIMARY KEY AUTO_INCREMENT,
+    reported_user_id INT NOT NULL,
+    reporter_id INT NOT NULL,
+    violation_type VARCHAR(100) NOT NULL,
+    description TEXT,
+    action_taken ENUM('warning', 'account_disabled') DEFAULT 'warning',
+    status ENUM('pending', 'resolved') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    resolved_at TIMESTAMP NULL,
+    FOREIGN KEY (reported_user_id) REFERENCES users(user_id),
+    FOREIGN KEY (reporter_id) REFERENCES users(user_id)
+);
+
+-- Shopping cart table (for registered users)
+CREATE TABLE cart_items (
+    cart_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_cart_item (customer_id, product_id)
+);
+
+-- Insert sample data
+-- Admin user
+INSERT INTO users (username, email, password, full_name, role) VALUES 
+('admin', 'admin@demo.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'System Administrator', 'admin');
+
+-- Sample traders
+INSERT INTO users (username, email, password, full_name, phone, address, role, status) VALUES 
+('trader1', 'trader1@demo.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'John Electronics', '1234567890', '123 Tech Street', 'trader', 'active'),
+('trader2', 'trader2@demo.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mary Fashion', '1234567891', '456 Style Avenue', 'trader', 'active'),
+('trader3', 'trader3@demo.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Bob Sports', '1234567892', '789 Game Lane', 'trader', 'pending'),
+('trader4', 'trader4@demo.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Alice Books', '1234567893', '321 Read Road', 'trader', 'active'),
+('trader5', 'trader5@demo.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Tom Home', '1234567894', '654 House Hill', 'trader', 'active');
+
+-- Sample customers
+INSERT INTO users (username, email, password, full_name, phone, address, role, loyalty_points) VALUES 
+('customer1', 'customer1@demo.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Sarah Johnson', '2234567890', '111 Buyer Blvd', 'customer', 50),
+('customer2', 'customer2@demo.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mike Wilson', '2234567891', '222 Shop Street', 'customer', 100);
+
+-- Sample shops (only 2 as required)
+INSERT INTO shops (trader_id, shop_name, description) VALUES 
+(2, 'TechHub Electronics', 'Your one-stop shop for latest electronics'),
+(3, 'Fashion Forward', 'Trendy clothes and accessories');
+
+-- Sample categories
+INSERT INTO categories (category_name, description) VALUES 
+('Electronics', 'Gadgets and electronic devices'),
+('Clothing', 'Fashion and apparel'),
+('Books', 'Educational and entertainment books'),
+('Sports', 'Sports equipment and gear'),
+('Home', 'Home and garden items');
+
+-- Sample products (5 per shop = 10 total)
+-- TechHub Electronics products
+INSERT INTO products (shop_id, category_id, product_name, description, price, stock_quantity, image_path, rating, total_reviews) VALUES 
+(1, 1, 'Smartphone X1', 'Latest Android smartphone with 128GB storage', 299.99, 50, 'images/smartphone_x1.jpg', 4.5, 23),
+(1, 1, 'Wireless Headphones', 'Bluetooth noise-canceling headphones', 79.99, 30, 'images/wireless_headphones.jpg', 4.2, 15),
+(1, 1, 'Laptop Pro 15', '15-inch laptop with 8GB RAM and SSD', 699.99, 15, 'images/laptop_pro15.jpg', 4.7, 31),
+(1, 1, 'Smart Watch', 'Fitness tracking smartwatch', 149.99, 25, 'images/smart_watch.jpg', 4.3, 18),
+(1, 1, 'Portable Charger', '10000mAh power bank with fast charging', 29.99, 100, 'images/portable_charger.jpg', 4.1, 42);
+
+-- Fashion Forward products  
+INSERT INTO products (shop_id, category_id, product_name, description, price, stock_quantity, image_path, rating, total_reviews) VALUES 
+(2, 2, 'Designer Jeans', 'Premium denim jeans in various sizes', 89.99, 40, 'images/designer_jeans.jpg', 4.4, 28),
+(2, 2, 'Summer Dress', 'Floral print summer dress', 49.99, 35, 'images/summer_dress.jpg', 4.6, 19),
+(2, 2, 'Leather Jacket', 'Genuine leather motorcycle jacket', 199.99, 12, 'images/leather_jacket.jpg', 4.8, 7),
+(2, 2, 'Running Shoes', 'Comfortable athletic running shoes', 79.99, 60, 'images/running_shoes.jpg', 4.3, 35),
+(2, 2, 'Handbag Premium', 'Luxury leather handbag', 129.99, 20, 'images/handbag_premium.jpg', 4.5, 12);
+
+-- Sample promo codes
+INSERT INTO promo_codes (code, discount_type, discount_value, min_order_amount, max_uses, start_date, end_date) VALUES 
+('WELCOME10', 'percentage', 10.00, 50.00, 100, '2024-01-01', '2024-12-31'),
+('SAVE20', 'fixed', 20.00, 100.00, 50, '2024-01-01', '2024-12-31'),
+('NEWUSER', 'percentage', 15.00, 0.00, 200, '2024-01-01', '2024-12-31');
+
+-- Note: Password for all sample users is 'password' (hashed with PHP password_hash())
+-- You'll need to update these with actual hashed passwords when implementing login
+message.txt
+10 KB
