@@ -89,6 +89,7 @@ try {
     <title>Admin Dashboard </title>
     
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/theme.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
@@ -114,6 +115,16 @@ try {
                 </a>
             </li>
             <li>
+                <a href="products.php">
+                    <i class="fas fa-box"></i> Products
+                </a>
+            </li>
+            <li>
+                <a href="promo_codes.php">
+                    <i class="fas fa-tags"></i> Promo Codes
+                </a>
+            </li>
+            <li>
                 <a href="violations.php">
                     <i class="fas fa-exclamation-triangle"></i> Violations
                     <?php if ($pendingViolations > 0): ?>
@@ -126,21 +137,7 @@ try {
                     <i class="fas fa-chart-bar"></i> Reports
                 </a>
             </li>
-            <li>
-                <a href="users.php">
-                    <i class="fas fa-users"></i> Users
-                </a>
-            </li>
-            <li>
-                <a href="products.php">
-                    <i class="fas fa-box"></i> Products
-                </a>
-            </li>
-            <li>
-                <a href="orders.php">
-                    <i class="fas fa-shopping-bag"></i> Orders
-                </a>
-            </li>
+
         </ul>
         
         <div class="sidebar-footer">

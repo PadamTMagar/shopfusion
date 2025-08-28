@@ -117,6 +117,8 @@ if ($flashError = getFlashMessage('error')) {
     <title>Loyalty Points - ShopFusion</title>
     
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/theme.css">
+    <link rel="stylesheet" href="../css/customer.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="customer-body">

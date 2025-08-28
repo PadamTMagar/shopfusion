@@ -176,6 +176,7 @@ if ($flashError = getFlashMessage('error')) {
     <title>Trader Dashboard - ShopFusion</title>
     
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/theme.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
@@ -196,7 +197,7 @@ if ($flashError = getFlashMessage('error')) {
                 </a>
             </li>
             <li>
-                <a href="#products-section">
+                <a href="products.php">
                     <i class="fas fa-box"></i> Products
                     <?php if (isset($traderStats['active_products'])): ?>
                         <span class="badge"><?php echo $traderStats['active_products']; ?></span>
@@ -209,11 +210,29 @@ if ($flashError = getFlashMessage('error')) {
                 </a>
             </li>
             <li>
-                <a href="#orders-section">
+                <a href="orders.php">
                     <i class="fas fa-shopping-bag"></i> Orders
                     <?php if (isset($traderStats['total_orders']) && $traderStats['total_orders'] > 0): ?>
                         <span class="badge"><?php echo $traderStats['total_orders']; ?></span>
                     <?php endif; ?>
+                </a>
+            </li>
+            <li>
+                <a href="violations.php">
+                    <i class="fas fa-exclamation-triangle"></i> Violations
+                    <?php
+                    $stmt = $pdo->prepare("SELECT violation_count FROM users WHERE user_id = ?");
+                    $stmt->execute([getUserId()]);
+                    $violationCount = $stmt->fetch()['violation_count'] ?? 0;
+                    if ($violationCount > 0):
+                    ?>
+                        <span class="badge badge-danger"><?php echo $violationCount; ?></span>
+                    <?php endif; ?>
+                </a>
+            </li>
+            <li>
+                <a href="reports.php">
+                    <i class="fas fa-chart-bar"></i> Reports
                 </a>
             </li>
         </ul>

@@ -1,41 +1,74 @@
 // js/cart.js - Cart functionality
 
+// Helper function to get correct API path
+function getApiPath() {
+    // Check if we're in a subdirectory (like shop/, customer/, etc.)
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/shop/') || currentPath.includes('/customer/') || 
+        currentPath.includes('/trader/') || currentPath.includes('/admin/') ||
+        currentPath.includes('/payment/') || currentPath.includes('/auth/')) {
+        return '../api/';
+    }
+    return 'api/';
+}
+
 // Cart operations
 const Cart = {
     // Add item to cart
-    addItem: function(productId, quantity = 1) {
-        const button = event.target;
-        const stopLoading = showLoading(button, 'Adding...');
+    addItem: function(productId, quantity = 1, button = null) {
+        // Try to get the button from event or parameter
+        if (!button && window.event && window.event.target) {
+            button = window.event.target;
+        }
+        
+        const stopLoading = button ? showLoading(button, 'Adding...') : () => {};
         
         const formData = new FormData();
         formData.append('action', 'add');
         formData.append('product_id', productId);
         formData.append('quantity', quantity);
         
-        fetch('/ecommerce_demo/api/cart_actions.php', {
+        fetch(getApiPath() + 'cart_actions.php', {
             method: 'POST',
             body: formData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => response.json())
-        .then(data => {
+        .then(response => {
+            // Check if response is ok
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text(); // Get as text first
+        })
+        .then(text => {
+            // Try to parse as JSON
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                console.error('Invalid JSON response:', text);
+                throw new Error('Server returned invalid response');
+            }
+            
             stopLoading();
             
             if (data.success) {
                 this.updateCartCount(data.cart_count);
                 showNotification('Product added to cart!', 'success');
                 
-                // Update button text temporarily
-                const originalText = button.innerHTML;
-                button.innerHTML = '<i class="fas fa-check"></i> Added!';
-                button.classList.add('btn-success');
-                
-                setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.classList.remove('btn-success');
-                }, 2000);
+                // Update button text temporarily (if button exists)
+                if (button) {
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-check"></i> Added!';
+                    button.classList.add('btn-success');
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.classList.remove('btn-success');
+                    }, 2000);
+                }
             } else {
                 showNotification(data.message || 'Failed to add item to cart', 'error');
             }
@@ -59,7 +92,7 @@ const Cart = {
         formData.append('product_id', productId);
         formData.append('quantity', quantity);
         
-        fetch('/ecommerce_demo/api/cart_actions.php', {
+        fetch(getApiPath() + 'cart_actions.php', {
             method: 'POST',
             body: formData,
             headers: {
@@ -93,7 +126,7 @@ const Cart = {
             formData.append('action', 'remove');
             formData.append('product_id', productId);
             
-            fetch('/ecommerce_demo/api/cart_actions.php', {
+            fetch(getApiPath() + 'cart_actions.php', {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -131,7 +164,7 @@ const Cart = {
             const formData = new FormData();
             formData.append('action', 'clear');
             
-            fetch('/ecommerce_demo/api/cart_actions.php', {
+            fetch(getApiPath() + 'cart_actions.php', {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -169,7 +202,7 @@ const Cart = {
     
     // Update cart count in header
     updateCartCount: function(count) {
-        const cartCountElements = document.querySelectorAll('.cart-count, #cartCount');
+        const cartCountElements = document.querySelectorAll('.cart-count, #cartCount, #cartCountLoggedIn, #cartCountGuest');
         cartCountElements.forEach(element => {
             element.textContent = count || 0;
             
@@ -223,7 +256,7 @@ const Cart = {
                     <i class="fas fa-shopping-cart"></i>
                     <h3>Your cart is empty</h3>
                     <p>Add some products to get started!</p>
-                    <a href="/ecommerce_demo/index.php" class="btn-primary">Continue Shopping</a>
+                                            <a href="../index.php" class="btn-primary">Continue Shopping</a>
                 </div>
             `;
         }
@@ -245,7 +278,7 @@ const Cart = {
         formData.append('action', 'apply_promo');
         formData.append('promo_code', promoInput.value.trim());
         
-        fetch('/ecommerce_demo/api/cart_actions.php', {
+        fetch(getApiPath() + 'cart_actions.php', {
             method: 'POST',
             body: formData,
             headers: {
@@ -287,7 +320,7 @@ const Cart = {
         const formData = new FormData();
         formData.append('action', 'remove_promo');
         
-        fetch('/ecommerce_demo/api/cart_actions.php', {
+        fetch(getApiPath() + 'cart_actions.php', {
             method: 'POST',
             body: formData,
             headers: {
@@ -437,13 +470,26 @@ function initializeCartEvents() {
 
 // Load current cart count
 function loadCartCount() {
-    fetch('/ecommerce_demo/api/cart_actions.php?action=get_count', {
+    fetch(getApiPath() + 'cart_actions.php?action=get_count', {
         headers: {
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text();
+    })
+    .then(text => {
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error('Invalid JSON response:', text);
+            throw new Error('Server returned invalid response');
+        }
+        
         if (data.success) {
             Cart.updateCartCount(data.cart_count);
         }
@@ -455,7 +501,17 @@ function loadCartCount() {
 
 // Global function for adding to cart (called from product cards)
 function addToCart(productId, quantity = 1) {
-    Cart.addItem(productId, quantity);
+    // Try to get the button that was clicked
+    let button = null;
+    if (window.event && window.event.target) {
+        button = window.event.target;
+        // If it's an icon inside the button, get the parent button
+        if (button.tagName === 'I' && button.parentElement.tagName === 'BUTTON') {
+            button = button.parentElement;
+        }
+    }
+    
+    Cart.addItem(productId, quantity, button);
 }
 
 // Global function for updating cart quantity

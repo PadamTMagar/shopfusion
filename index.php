@@ -30,6 +30,7 @@ $pageTitle = 'ShopFusion - Your Online Shopping Destination';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $pageTitle; ?></title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/theme.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -38,7 +39,8 @@ $pageTitle = 'ShopFusion - Your Online Shopping Destination';
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-                    <h1><a href="index.php">Shopfusion</a></h1>
+                    <!-- <h1><a href="index.php">Shopfusion</a></h1> -->
+                     <img src="images/logo.png" alt="Shopfusion Logo" class="logo-image" style="width: 190px; height: 40px;">
                 </div>
                 
                 <!-- Search Bar -->
@@ -56,7 +58,7 @@ $pageTitle = 'ShopFusion - Your Online Shopping Destination';
                         <div class="cart-icon">
                             <a href="shop/cart.php">
                                 <i class="fas fa-shopping-cart"></i>
-                                <span class="cart-count" id="cartCount">
+                                <span class="cart-count" id="cartCountLoggedIn">
                                     <?php echo isCustomer() ? getCartCount(getUserId()) : getGuestCartCount(); ?>
                                 </span>
                             </a>
@@ -85,7 +87,7 @@ $pageTitle = 'ShopFusion - Your Online Shopping Destination';
                         <div class="cart-icon">
                             <a href="shop/cart.php">
                                 <i class="fas fa-shopping-cart"></i>
-                                <span class="cart-count" id="cartCount"><?php echo getGuestCartCount(); ?></span>
+                                <span class="cart-count" id="cartCountGuest"><?php echo getGuestCartCount(); ?></span>
                             </a>
                         </div>
                         <a href="auth/login.php" class="login-btn">Login</a>
@@ -173,7 +175,7 @@ $pageTitle = 'ShopFusion - Your Online Shopping Destination';
                                 for "<?php echo htmlspecialchars($searchQuery); ?>"
                             <?php endif; ?>
                         <?php else: ?>
-                            Featured Products
+                            Just For You
                         <?php endif; ?>
                     </h2>
                     <p><?php echo count($products); ?> products found</p>
@@ -191,7 +193,7 @@ $pageTitle = 'ShopFusion - Your Online Shopping Destination';
                         <?php foreach ($products as $product): ?>
                             <div class="product-card">
                                 <div class="product-image">
-                                    <img src="<?php echo file_exists($product['image_path']) ? $product['image_path'] : 'images/placeholder.jpg'; ?>" 
+                                    <img src="<?php echo htmlspecialchars(getImagePath($product['image_path'])); ?>" 
                                          alt="<?php echo htmlspecialchars($product['product_name']); ?>">
                                     <?php if ($product['stock_quantity'] <= 5): ?>
                                         <span class="stock-badge">Only <?php echo $product['stock_quantity']; ?> left!</span>

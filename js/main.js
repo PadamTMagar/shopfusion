@@ -287,7 +287,7 @@ function showNotification(message, type = 'info', duration = 3000) {
         border-radius: 5px;
         color: white;
         font-weight: 500;
-        z-index: 10000;
+        z-index: 999999;
         opacity: 0;
         transform: translateX(100%);
         transition: all 0.3s ease;

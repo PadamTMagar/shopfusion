@@ -6,7 +6,7 @@ define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', ''); // Empty password for XAMPP default
 define('DB_NAME', 'shopfusion');
-define(constant_name: 'DB_port', value: '3306');
+define('DB_PORT', '3306');
 
 class Database {
     private $host = DB_HOST;

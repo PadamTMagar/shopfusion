@@ -173,7 +173,8 @@ function getTraderShop($traderId) {
 function getCartItems($userId) {
     global $pdo;
     $stmt = $pdo->prepare("
-        SELECT ci.*, p.product_name, p.price, p.image_path, p.stock_quantity, s.shop_name, s.shop_id
+        SELECT ci.*, p.product_name, p.price, p.image_path, p.stock_quantity, s.shop_name, s.shop_id,
+               (ci.quantity * p.price) as subtotal
         FROM cart_items ci 
         JOIN products p ON ci.product_id = p.product_id 
         JOIN shops s ON p.shop_id = s.shop_id 
@@ -423,7 +424,7 @@ function getSalesReport($startDate = null, $endDate = null) {
 }
 
 // Upload image
-function uploadImage($file, $uploadDir = 'images/products/') {
+function uploadImage($file, $uploadDir = 'uploads/products/') {
     $targetDir = $uploadDir;
     $fileName = time() . '_' . basename($file["name"]);
     $targetFile = $targetDir . $fileName;
@@ -470,4 +471,97 @@ function logActivity($userId, $action, $details = '') {
         // Fail silently for logging
     }
 }
+
+// Guest cart functions
+function getGuestCartItems() {
+    global $pdo;
+    
+    if (!isset($_SESSION['guest_cart']) || empty($_SESSION['guest_cart'])) {
+        return [];
+    }
+    
+    $productIds = array_keys($_SESSION['guest_cart']);
+    $placeholders = str_repeat('?,', count($productIds) - 1) . '?';
+    
+    $stmt = $pdo->prepare("
+        SELECT p.*, s.shop_name, s.shop_id, c.category_name
+        FROM products p 
+        JOIN shops s ON p.shop_id = s.shop_id 
+        JOIN categories c ON p.category_id = c.category_id
+        WHERE p.product_id IN ($placeholders) AND p.status = 'active'
+    ");
+    $stmt->execute($productIds);
+    $products = $stmt->fetchAll();
+    
+    $cartItems = [];
+    foreach ($products as $product) {
+        $quantity = $_SESSION['guest_cart'][$product['product_id']];
+        $cartItems[] = [
+            'product_id' => $product['product_id'],
+            'product_name' => $product['product_name'],
+            'price' => $product['price'],
+            'quantity' => $quantity,
+            'subtotal' => $product['price'] * $quantity,
+            'image_path' => $product['image_path'],
+            'stock_quantity' => $product['stock_quantity'],
+            'shop_name' => $product['shop_name'],
+            'shop_id' => $product['shop_id']
+        ];
+    }
+    
+    return $cartItems;
+}
+
+function getGuestCartTotal() {
+    $items = getGuestCartItems();
+    $total = 0;
+    
+    foreach ($items as $item) {
+        $total += $item['subtotal'];
+    }
+    
+    return $total;
+}
+
+// Helper function to get the correct image path
+function getImagePath($imagePath, $baseDir = '') {
+    if (empty($imagePath)) {
+        return $baseDir . 'uploads/products/placeholder.jpg';
+    }
+    
+    // Try the full path first
+    if (file_exists($imagePath)) {
+        return $imagePath;
+    }
+    
+    // Try with base directory
+    $fullPath = $baseDir . $imagePath;
+    if (file_exists($fullPath)) {
+        return $fullPath;
+    }
+    
+    // Try with just the filename in uploads/products
+    $filename = basename($imagePath);
+    $uploadPath = $baseDir . 'uploads/products/' . $filename;
+    if (file_exists($uploadPath)) {
+        return $uploadPath;
+    }
+    
+    // If the specified image doesn't exist, try to find any available image
+    // This helps when the database has incorrect image paths
+    $uploadDir = $baseDir . 'uploads/products/';
+    if (is_dir($uploadDir)) {
+        $files = glob($uploadDir . '*.{jpg,jpeg,png,gif}', GLOB_BRACE);
+        if (!empty($files)) {
+            // Use a deterministic but varied selection based on the imagePath hash
+            $hash = crc32($imagePath);
+            $selectedFile = $files[$hash % count($files)];
+            return $selectedFile;
+        }
+    }
+    
+    // Fallback to placeholder
+    return $baseDir . 'uploads/products/placeholder.jpg';
+}
+
 ?>

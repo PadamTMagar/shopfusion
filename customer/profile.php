@@ -151,6 +151,8 @@ if ($flashError = getFlashMessage('error')) {
     <title>My Profile - ShopFusion</title>
     
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/theme.css">
+    <link rel="stylesheet" href="../css/customer.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="customer-body">
@@ -175,7 +177,7 @@ if ($flashError = getFlashMessage('error')) {
                     </a>
                 </li>
                 <li>
-                    <a href="order.php">
+                    <a href="orders.php">
                         <i class="fas fa-shopping-bag"></i> My Orders
                         <?php if ($totalOrders > 0): ?>
                             <span class="badge"><?php echo $totalOrders; ?></span>
@@ -369,7 +371,7 @@ if ($flashError = getFlashMessage('error')) {
                 <div class="profile-card">
                     <div class="card-header">
                         <h3><i class="fas fa-history"></i> Recent Activity</h3>
-                        <a href="orders.php" class="view-all-link">View All Orders</a>
+                        <a href="/orders.php" class="view-all-link">View All Orders</a>
                     </div>
                     <div class="card-content">
                         <?php if (empty($recentOrders)): ?>

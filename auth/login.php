@@ -87,6 +87,7 @@ function mergeGuestCart($userId) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopfusion - Login</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/theme.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <style>
@@ -114,9 +115,9 @@ function mergeGuestCart($userId) {
             text-decoration: underline;
         }
         .demo-btn:hover {
-            background: #ffa14a;
+            background: var(--accent-color);
             color: #fff;
-            border-color: #ffa14a;
+            border-color: var(--accent-color);
         }
     </style>
 </head>
@@ -155,8 +156,8 @@ function mergeGuestCart($userId) {
             <form method="POST" class="auth-form">
                 <div class="form-group">
                     <label for="email">Email Address</label>
-                    <div class="input-icon">
-                        <i class="fas fa-envelope"></i>
+                    <div class="input-icon" >
+                        <!-- <i class="fas fa-envelope"></i> -->
                         <input type="email" id="email" name="email" required 
                                value="<?php echo htmlspecialchars($email); ?>"
                                placeholder="Enter your email">
@@ -165,12 +166,12 @@ function mergeGuestCart($userId) {
 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <div class="input-icon">
-                        <i class="fas fa-lock"></i>
+                    <div class="input-icon" >
+                        <!-- <i class="fas fa-lock"></i> -->
                         <input type="password" id="password" name="password" required
                                placeholder="Enter your password">
                         <button type="button" class="password-toggle" onclick="togglePassword('password')">
-                            <i class="fas fa-eye"></i>
+                            <!-- <i class="fas fa-eye"></i> -->
                         </button>
                     </div>
                 </div>
@@ -178,7 +179,7 @@ function mergeGuestCart($userId) {
                 <div class="form-options">
                     <label class="checkbox-container">
                         <input type="checkbox" name="remember">
-                        <span class="checkmark"></span>
+                        <!-- <span class="checkmark"></span> -->
                         Remember me
                     </label>
                     <a href="forgot_password.php" class="forgot-link">Forgot Password?</a>
@@ -197,10 +198,10 @@ function mergeGuestCart($userId) {
             <div class="demo-accounts">
                 <h4>Accounts (Click to auto-fill)</h4>
                 <div class="demo-buttons">
-                    <button type="button" class="demo-btn" onclick="fillDemo('admin@shopfusion.com', 'password')">
+                    <!-- <button type="button" class="demo-btn" onclick="fillDemo('admin@shopfusion.com', 'password')">
                         <i class="fas fa-user-shield"></i>
                         Admin 
-                    </button>
+                    </button> -->
                     <button type="button" class="demo-btn" onclick="fillDemo('trader1@shopfusion.com', 'password')">
                         <i class="fas fa-store"></i>
                         Trader 

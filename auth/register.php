@@ -154,6 +154,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Shopfusion</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/theme.css">
+    <link rel="stylesheet" href="../css/customer.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="auth-page">
@@ -197,7 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group">
                         <label for="username">Username</label>
                         <div class="input-icon">
-                            <i class="fas fa-user"></i>
+                            <!-- <i class="fas fa-user"></i> -->
                             <input type="text" id="username" name="username" required
                                    value="<?php echo htmlspecialchars($formData['username']); ?>"
                                    placeholder="Choose a username">
@@ -207,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group">
                         <label for="email">Email Address</label>
                         <div class="input-icon">
-                            <i class="fas fa-envelope"></i>
+                            <!-- <i class="fas fa-envelope"></i> -->
                             <input type="email" id="email" name="email" required
                                    value="<?php echo htmlspecialchars($formData['email']); ?>"
                                    placeholder="Enter your email">
@@ -218,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-group">
                     <label for="full_name">Full Name</label>
                     <div class="input-icon">
-                        <i class="fas fa-id-card"></i>
+                        <!-- <i class="fas fa-id-card"></i> -->
                         <input type="text" id="full_name" name="full_name" required
                                value="<?php echo htmlspecialchars($formData['full_name']); ?>"
                                placeholder="Enter your full name">
@@ -229,11 +231,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group">
                         <label for="password">Password</label>
                         <div class="input-icon">
-                            <i class="fas fa-lock"></i>
+                            <!-- <i class="fas fa-lock"></i> -->
                             <input type="password" id="password" name="password" required
                                    placeholder="Create a password">
                             <button type="button" class="password-toggle" onclick="togglePassword('password')">
-                                <i class="fas fa-eye"></i>
+                                <!-- <i class="fas fa-eye"></i> -->
                             </button>
                         </div>
                     </div>
@@ -241,11 +243,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-group">
                         <label for="confirm_password">Confirm Password</label>
                         <div class="input-icon">
-                            <i class="fas fa-lock"></i>
+                            <!-- <i class="fas fa-lock"></i> -->
                             <input type="password" id="confirm_password" name="confirm_password" required
                                    placeholder="Confirm your password">
                             <button type="button" class="password-toggle" onclick="togglePassword('confirm_password')">
-                                <i class="fas fa-eye"></i>
+                                <!-- <i class="fas fa-eye"></i> -->
                             </button>
                         </div>
                     </div>
