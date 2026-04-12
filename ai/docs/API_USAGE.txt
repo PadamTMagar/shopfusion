@@ -1,0 +1,76 @@
+AI API Usage
+============
+
+1. Chat endpoint
+File:
+- ai/api/chat.php
+
+Method:
+- POST
+
+Expected JSON body:
+- message
+- page_type
+- page_title
+- product_id
+
+Security:
+- requires CSRF token
+- uses session-based rate limiting
+
+Response example:
+- success
+- message
+- source
+- suggestions
+
+2. Review moderation endpoint
+File:
+- ai/api/review_moderate.php
+
+Method:
+- POST
+
+Accepted fields:
+- product_id
+- product_name
+- rating
+- comment
+
+Security:
+- requires CSRF token
+- uses session-based rate limiting
+
+Response example:
+- success
+- decision
+- reason
+- source
+
+3. Review summary endpoint
+File:
+- ai/api/review_summary.php
+
+Method:
+- GET
+
+Query params:
+- product_id
+- refresh (optional)
+
+Response example:
+- success
+- analysis.summary
+- analysis.pros
+- analysis.cons
+- analysis.sentiment
+- analysis.review_count
+- analysis.average_rating
+- analysis.source
+
+4. Logging
+Files written under:
+- ai/logs/chat_errors.log
+- ai/logs/review_errors.log
+
+These logs help with troubleshooting API failures without exposing secrets to users.

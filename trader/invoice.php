@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // trader/invoice.php - Generate Invoice for Trader's Orders
 require_once '../config/database.php';
 require_once '../includes/session.php';
@@ -539,7 +539,7 @@ try {
         }
         
         .footer-section li::before {
-            content: '•';
+            content: 'â€¢';
             color: #007bff;
             position: absolute;
             left: 0;
@@ -643,5 +643,7 @@ try {
             }
         }
     </style>
+
+    <link rel='stylesheet' href='../css/theme-refresh.css'>
 </body>
 </html>

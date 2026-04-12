@@ -1,12 +1,13 @@
 <?php
 // config/database.php
-// Database configuration for XAMPP local development
+// Database configuration for local/shared-hosting style environments.
+// Defaults now match the SQL files in /database and standard XAMPP usage.
 
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', ''); // Empty password for XAMPP default
-define('DB_NAME', 'shopfusion');
-define('DB_PORT', '3306');
+define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
+define('DB_USER', getenv('DB_USER') ?: 'root');
+define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');
+define('DB_NAME', getenv('DB_NAME') ?: 'shopfusion');
+define('DB_PORT', getenv('DB_PORT') ?: '3306');
 
 class Database {
     private $host = DB_HOST;
@@ -18,7 +19,7 @@ class Database {
 
     public function __construct() {
         // Set DSN
-        $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->dbname . ';charset=utf8mb4';
+        $dsn = 'mysql:host=' . $this->host . ';port=' . DB_PORT . ';dbname=' . $this->dbname . ';charset=utf8mb4';
         
         // PDO options
         $options = array(

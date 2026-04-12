@@ -3,6 +3,9 @@
 require_once '../config/database.php';
 require_once '../includes/session.php';
 require_once '../includes/functions.php';
+require_once '../ai/includes/bootstrap.php';
+require_once '../ai/includes/demo_reviews.php';
+require_once '../ai/includes/review_service.php';
 
 $error = '';
 $success = '';
@@ -46,6 +49,18 @@ try {
     ");
     $stmt->execute([$productId]);
     $reviews = $stmt->fetchAll();
+    $usingDemoReviews = false;
+
+    if (empty($reviews)) {
+        $reviews = ai_get_dummy_reviews_for_product($product);
+        $usingDemoReviews = !empty($reviews);
+
+        if ($usingDemoReviews) {
+            $demoSnapshot = ai_build_review_snapshot($reviews, $product['rating']);
+            $product['rating'] = $demoSnapshot['average_rating'];
+            $product['total_reviews'] = $demoSnapshot['count'];
+        }
+    }
     
     // Get related products from same category
     $stmt = $pdo->prepare("
@@ -117,6 +132,8 @@ try {
     
     // Keep only last 10 items
     $_SESSION['recently_viewed'] = array_slice($_SESSION['recently_viewed'], 0, 10);
+
+    $reviewSnapshot = ai_build_review_snapshot($reviews, $product['rating']);
     
 } catch (PDOException $e) {
     $error = "Failed to load product details.";
@@ -124,7 +141,9 @@ try {
 
 // Handle review submission
 if ($_POST && isset($_POST['action']) && $_POST['action'] === 'add_review') {
-    if (!isLoggedIn() || !isCustomer()) {
+    if (!validateCSRFToken($_POST['csrf_token'] ?? '')) {
+        $error = "Your session token expired. Please refresh the page and try again.";
+    } elseif (!isLoggedIn() || !isCustomer()) {
         $error = "You must be logged in as a customer to write reviews.";
     } elseif (!$canReview) {
         $error = "You can only review products you have purchased and received.";
@@ -132,10 +151,24 @@ if ($_POST && isset($_POST['action']) && $_POST['action'] === 'add_review') {
         $error = "You have already reviewed this product.";
     } else {
         $rating = intval($_POST['rating']);
-        $comment = sanitize($_POST['comment']);
+        $comment = ai_clean_text($_POST['comment'] ?? '', 1500);
         
-        if ($rating >= 1 && $rating <= 5) {
+        if ($rating >= 1 && $rating <= 5 && $comment !== '') {
             try {
+                $reviewAi = new AI_Review_Service();
+                $moderation = $reviewAi->moderateReview($pdo, [
+                    'product_id' => $productId,
+                    'customer_id' => getUserId(),
+                    'rating' => $rating,
+                    'comment' => $comment,
+                    'product_name' => $product['product_name'],
+                ]);
+
+                if ($moderation['decision'] !== 'approved') {
+                    $error = $moderation['reason'] ?: "This review could not be published.";
+                    throw new Exception('Review moderation blocked submission.');
+                }
+
                 $pdo->beginTransaction();
                 
                 // Insert review
@@ -149,6 +182,16 @@ if ($_POST && isset($_POST['action']) && $_POST['action'] === 'add_review') {
                 updateProductRating($productId);
                 
                 $pdo->commit();
+
+                try {
+                    $reviewAi->getProductAnalysis($pdo, $productId, true);
+                } catch (Exception $analysisException) {
+                    ai_write_log('review_errors', [
+                        'error' => $analysisException->getMessage(),
+                        'product_id' => $productId,
+                    ]);
+                }
+
                 $success = "Review added successfully!";
                 setFlashMessage('success', $success);
                 
@@ -156,12 +199,16 @@ if ($_POST && isset($_POST['action']) && $_POST['action'] === 'add_review') {
                 header("Location: product.php?id=$productId");
                 exit();
                 
-            } catch (PDOException $e) {
-                $pdo->rollBack();
-                $error = "Failed to add review. Please try again.";
+            } catch (Exception $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                if (!$error) {
+                    $error = "Failed to add review. Please try again.";
+                }
             }
         } else {
-            $error = "Please provide a valid rating (1-5 stars).";
+            $error = "Please provide a valid rating (1-5 stars) and a short review.";
         }
     }
 }
@@ -186,6 +233,7 @@ $pageTitle = htmlspecialchars($product['product_name']) . ' - ShopFusion';
     
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/theme.css">
+    <?php echo ai_render_head_assets('..'); ?>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <meta name="description" content="<?php echo htmlspecialchars(substr($product['description'], 0, 160)); ?>">
@@ -521,7 +569,65 @@ $pageTitle = htmlspecialchars($product['product_name']) . ' - ShopFusion';
                                         </div>
                                         <p><?php echo $product['total_reviews']; ?> review<?php echo $product['total_reviews'] != 1 ? 's' : ''; ?></p>
                                     </div>
+                                    <div class="rating-breakdown">
+                                        <?php for ($star = 5; $star >= 1; $star--): ?>
+                                            <?php
+                                            $count = $reviewSnapshot['breakdown'][$star] ?? 0;
+                                            $percentage = $reviewSnapshot['count'] > 0 ? round(($count / $reviewSnapshot['count']) * 100) : 0;
+                                            ?>
+                                            <div class="rating-breakdown-row">
+                                                <span><?php echo $star; ?> <i class="fas fa-star"></i></span>
+                                                <div class="rating-progress">
+                                                    <div class="rating-progress-fill" style="width: <?php echo $percentage; ?>%;"></div>
+                                                </div>
+                                                <strong><?php echo $count; ?></strong>
+                                            </div>
+                                        <?php endfor; ?>
+                                    </div>
+                                    <div class="review-confidence-card">
+                                        <span class="ai-kicker">Buyer Confidence</span>
+                                        <h4><?php echo $reviewSnapshot['count'] >= 3 ? 'Shoppers are seeing consistent product feedback.' : 'Feedback is building as more customers review this item.'; ?></h4>
+                                        <p>Use the review mix, shipping info, and trust details below to make a more confident decision.</p>
+                                        <div class="trust-strip">
+                                            <div class="trust-pill"><i class="fas fa-truck"></i><span>Delivery guidance included</span></div>
+                                            <div class="trust-pill"><i class="fas fa-undo"></i><span>30-day return window</span></div>
+                                        </div>
+                                    </div>
                                 </div>
+                                <?php if ($usingDemoReviews): ?>
+                                    <div class="review-demo-note">
+                                        <i class="fas fa-info-circle"></i>
+                                        Demo reviews are shown for presentation because this product has no live customer reviews yet.
+                                    </div>
+                                <?php endif; ?>
+                                <?php if (!empty($reviewSnapshot['most_helpful_review'])): ?>
+                                    <div class="featured-review-cards">
+                                        <div class="featured-review-card">
+                                            <span class="ai-kicker">Most Helpful Review</span>
+                                            <h4><?php echo htmlspecialchars($reviewSnapshot['most_helpful_review']['title'] ?? 'Helpful customer feedback'); ?></h4>
+                                            <p><?php echo nl2br(htmlspecialchars($reviewSnapshot['most_helpful_review']['comment'])); ?></p>
+                                            <div class="featured-review-meta">
+                                                <span><?php echo htmlspecialchars($reviewSnapshot['most_helpful_review']['customer_name']); ?></span>
+                                                <span><?php echo formatDate($reviewSnapshot['most_helpful_review']['created_at']); ?></span>
+                                            </div>
+                                        </div>
+                                        <?php if (!empty($reviewSnapshot['best_review'])): ?>
+                                            <div class="featured-review-card best-review-card">
+                                                <span class="ai-kicker">Highlight</span>
+                                                <h4><?php echo htmlspecialchars($reviewSnapshot['best_review']['title'] ?? 'Strong positive feedback'); ?></h4>
+                                                <p><?php echo nl2br(htmlspecialchars($reviewSnapshot['best_review']['comment'])); ?></p>
+                                                <div class="featured-review-meta">
+                                                    <span><?php echo htmlspecialchars($reviewSnapshot['best_review']['customer_name']); ?></span>
+                                                    <span><?php echo formatDate($reviewSnapshot['best_review']['created_at']); ?></span>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php echo ai_render_review_panel('..', [
+                                    'product_id' => $productId,
+                                    'review_count' => count($reviews),
+                                ]); ?>
                             </div>
                             
                             <!-- Write Review Section -->
@@ -531,6 +637,7 @@ $pageTitle = htmlspecialchars($product['product_name']) . ' - ShopFusion';
                                         <h3><i class="fas fa-edit"></i> Write a Review</h3>
                                         <form method="POST" class="review-form">
                                             <input type="hidden" name="action" value="add_review">
+                                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(ai_get_csrf_token()); ?>">
                                             
                                             <div class="form-group">
                                                 <label>Your Rating:</label>
@@ -548,6 +655,7 @@ $pageTitle = htmlspecialchars($product['product_name']) . ' - ShopFusion';
                                                 <label for="comment">Your Review:</label>
                                                 <textarea name="comment" id="comment" rows="4" 
                                                           placeholder="Share your experience with this product..."></textarea>
+                                                <small class="form-text">AI moderation checks for spam and unsafe content before publishing.</small>
                                             </div>
                                             
                                             <button type="submit" class="btn-primary">
@@ -612,6 +720,9 @@ $pageTitle = htmlspecialchars($product['product_name']) . ' - ShopFusion';
                                                 </div>
                                             </div>
                                             <div class="review-content">
+                                                <?php if (!empty($review['title'])): ?>
+                                                    <strong class="review-title"><?php echo htmlspecialchars($review['title']); ?></strong>
+                                                <?php endif; ?>
                                                 <p><?php echo nl2br(htmlspecialchars($review['comment'])); ?></p>
                                             </div>
                                         </div>
@@ -808,6 +919,13 @@ $pageTitle = htmlspecialchars($product['product_name']) . ' - ShopFusion';
 
     <script src="../js/main.js"></script>
     <script src="../js/cart.js"></script>
+    <?php echo ai_render_review_assets('..'); ?>
+    <?php echo ai_render_chat_widget('..', [
+        'page_type' => 'product',
+        'page_title' => $pageTitle,
+        'product_id' => $productId,
+        'product_name' => $product['product_name'],
+    ]); ?>
     <script>
         // Product page specific JavaScript
         
@@ -1554,5 +1672,6 @@ $pageTitle = htmlspecialchars($product['product_name']) . ' - ShopFusion';
             }
         }
     </style>
+    <link rel="stylesheet" href="../css/theme-refresh.css">
 </body>
 </html>

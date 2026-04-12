@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 23, 2025 at 08:43 AM
+-- Generation Time: Apr 12, 2026 at 12:01 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,59 @@ SET time_zone = "+00:00";
 --
 -- Database: `shopfusion`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ai_review_analysis_cache`
+--
+
+CREATE TABLE `ai_review_analysis_cache` (
+  `product_id` int(11) NOT NULL,
+  `review_count` int(11) NOT NULL DEFAULT 0,
+  `average_rating` decimal(4,2) NOT NULL DEFAULT 0.00,
+  `sentiment` varchar(30) NOT NULL DEFAULT 'mixed',
+  `summary` text DEFAULT NULL,
+  `pros_json` text DEFAULT NULL,
+  `cons_json` text DEFAULT NULL,
+  `source` varchar(30) NOT NULL DEFAULT 'fallback',
+  `model_used` varchar(100) DEFAULT NULL,
+  `last_review_at` datetime DEFAULT NULL,
+  `raw_response` longtext DEFAULT NULL,
+  `generated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `ai_review_analysis_cache`
+--
+
+INSERT INTO `ai_review_analysis_cache` (`product_id`, `review_count`, `average_rating`, `sentiment`, `summary`, `pros_json`, `cons_json`, `source`, `model_used`, `last_review_at`, `raw_response`, `generated_at`) VALUES
+(4, 3, 4.30, 'positive', 'Smart Watch has an average rating of 4.3 from 3 reviews. Customers are mostly positive about the product overall.', '[\"design\",\"delivery\",\"easy to use\"]', '[\"packaging\",\"durability\",\"size\"]', 'fallback', NULL, '2026-03-28 16:15:00', NULL, '2026-04-11 21:50:10'),
+(13, 0, 0.00, 'mixed', 'This product does not have enough customer feedback yet for an AI review summary.', '[]', '[]', 'fallback', NULL, NULL, NULL, '2026-04-11 20:13:48'),
+(17, 3, 0.00, 'negative', 'Over The Head FRONTECH HF 3448 Wired Multimedia Headphone Dual 3.5mm Jack has an average rating of 0.0 from 3 reviews. Customers are mostly critical about the product overall.', '[\"performance\",\"expectation mismatch\",\"quality\"]', '[\"packaging\",\"durability\",\"size\"]', 'fallback', NULL, '2026-03-30 13:00:00', NULL, '2026-04-11 21:43:22'),
+(18, 3, 0.00, 'negative', 'Bluetooth Selfie Sticks R1s with Remote and Selfie Light, 3-in-1 Multifunctional Selfie Stick Tripod has an average rating of 0.0 from 3 reviews. Customers are mostly critical about the product overall.', '[\"value\",\"expectation mismatch\",\"quality\"]', '[\"packaging\",\"durability\",\"size\"]', 'fallback', NULL, '2026-03-27 10:00:00', NULL, '2026-04-11 20:33:46'),
+(19, 3, 0.00, 'negative', 'Rock 10000mAh Powerbank ll Magsafe Wireless Powerbank ll Fast Charging PD ll 15W Wireless Charging l has an average rating of 0.0 from 3 reviews. Customers are mostly critical about the product overall.', '[\"quality\",\"performance\",\"value\"]', '[\"packaging\",\"durability\",\"size\"]', 'fallback', NULL, '2026-03-29 10:15:00', NULL, '2026-04-11 20:32:56');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ai_review_moderation`
+--
+
+CREATE TABLE `ai_review_moderation` (
+  `moderation_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `customer_id` int(11) DEFAULT NULL,
+  `rating` int(11) DEFAULT NULL,
+  `review_text` text DEFAULT NULL,
+  `decision` varchar(30) NOT NULL,
+  `reason` varchar(255) DEFAULT NULL,
+  `confidence` decimal(4,2) DEFAULT NULL,
+  `source` varchar(30) NOT NULL,
+  `model_used` varchar(100) DEFAULT NULL,
+  `raw_response` longtext DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -56,7 +109,17 @@ INSERT INTO `categories` (`category_id`, `category_name`, `description`) VALUES
 (2, 'Clothing', 'Fashion and apparel'),
 (3, 'Books', 'Educational and entertainment books'),
 (4, 'Sports', 'Sports equipment and gear'),
-(5, 'Home', 'Home and garden items');
+(5, 'Home', 'Home and garden items'),
+(6, 'Beauty & Personal Care', 'Skincare, cosmetics, and grooming products'),
+(7, 'Health & Wellness', 'Healthcare products, supplements, and fitness items'),
+(8, 'Toys & Games', 'Toys, board games, and entertainment for kids'),
+(9, 'Jewelry & Accessories', 'Fashion jewelry, watches, and accessories'),
+(10, 'Furniture', 'Home and office furniture'),
+(11, 'Automotive', 'Car accessories, parts, and maintenance items'),
+(12, 'Grocery & Food', 'Daily groceries and packaged food'),
+(13, 'Baby & Kids', 'Baby products, kids clothing, and accessories'),
+(14, 'Office Supplies', 'Stationery, printers, and office equipment'),
+(15, 'Music & Instruments', 'Musical instruments and accessories');
 
 -- --------------------------------------------------------
 
@@ -87,7 +150,9 @@ CREATE TABLE `orders` (
 
 INSERT INTO `orders` (`order_id`, `customer_id`, `total_amount`, `payment_status`, `payment_method`, `paypal_transaction_id`, `shipping_address`, `order_status`, `promo_code`, `discount_amount`, `points_used`, `points_earned`, `created_at`, `updated_at`) VALUES
 (1, 7, 162002.16, 'pending', 'paypal', NULL, '111 Buyer Blvd', 'shipped', NULL, 0.00, 0, 162002, '2025-08-22 21:21:41', '2025-08-22 22:10:31'),
-(2, 7, 2.16, 'pending', 'paypal', NULL, 'jwagal 10 lalitpur', 'pending', NULL, 0.00, 0, 2, '2025-08-23 06:33:07', '2025-08-23 06:33:07');
+(2, 7, 2.16, 'pending', 'paypal', NULL, 'jwagal 10 lalitpur', 'pending', NULL, 0.00, 0, 2, '2025-08-23 06:33:07', '2025-08-23 06:33:07'),
+(3, 9, 3.78, 'pending', 'paypal', NULL, 'jwagal, 10 lalitpur', 'pending', NULL, 0.00, 0, 3, '2025-08-23 18:28:37', '2025-08-23 18:28:37'),
+(4, 7, 12.96, 'pending', 'paypal', NULL, 'Bijuli Bajar, Kathmandu', 'pending', NULL, 0.00, 0, 12, '2025-08-28 17:14:43', '2025-08-28 17:14:43');
 
 -- --------------------------------------------------------
 
@@ -112,7 +177,11 @@ CREATE TABLE `order_items` (
 INSERT INTO `order_items` (`item_id`, `order_id`, `product_id`, `shop_id`, `quantity`, `unit_price`, `subtotal`) VALUES
 (1, 1, 11, 3, 1, 150000.00, 150000.00),
 (2, 1, 12, 3, 1, 2.00, 2.00),
-(3, 2, 12, 3, 1, 2.00, 2.00);
+(3, 2, 12, 3, 1, 2.00, 2.00),
+(4, 3, 15, 3, 1, 0.50, 0.50),
+(5, 3, 14, 3, 1, 3.00, 3.00),
+(6, 4, 18, 1, 1, 2.00, 2.00),
+(7, 4, 19, 1, 1, 10.00, 10.00);
 
 -- --------------------------------------------------------
 
@@ -152,7 +221,14 @@ INSERT INTO `products` (`product_id`, `shop_id`, `category_id`, `product_name`, 
 (9, 2, 2, 'Running Shoes', 'Comfortable athletic running shoes', 79.99, 60, 'uploads/products/shoes.png', 4.30, 35, 'active', '2025-08-22 07:00:48', '2025-08-22 22:25:09'),
 (10, 2, 2, 'Handbag Premium', 'Luxury leather handbag', 129.99, 20, 'uploads/products/wallet.png', 4.50, 12, 'active', '2025-08-22 07:00:48', '2025-08-22 22:25:09'),
 (11, 3, 1, 'Laptop', 'gmaing laptop', 150000.00, 1, 'uploads/products/laptopbag.png', 0.00, 0, 'active', '2025-08-22 20:47:00', '2025-08-22 22:25:09'),
-(12, 3, 1, 'Charger 20w', 'Super fast charger', 2.00, 3, 'uploads/products/1755896247_charger.png', 0.00, 0, 'active', '2025-08-22 20:57:27', '2025-08-23 06:33:07');
+(12, 3, 1, 'Charger 20w', 'Super fast charger', 2.00, 3, 'uploads/products/1755896247_charger.png', 0.00, 0, 'active', '2025-08-22 20:57:27', '2025-08-23 06:33:07'),
+(13, 3, 1, '4 in 1 Fast Charging Cable (Type C/USB A/Lightning) Dual Type C PD 27W 65W Nylon Braided Cable', '4 in 1 Fast Charging Cable (Type C/USB A/Lightning) Dual Type C PD 27W 65W Nylon Braided Cable | Flat Braided i-Phone Charging Cable with Velcro Multi Charging Cable Combo Type C/USB-A Ports', 1.00, 5, 'uploads/products/datacable.jpg', 0.00, 0, 'active', '2025-08-23 16:20:12', '2025-08-23 17:14:20'),
+(14, 3, 1, '1.8L Fast Boiling Electric Kettle - Stainless Steel, Easy &amp; Convenient', '1.8L Fast Boiling Electric Kettle - Stainless Steel, Easy &amp; Convenient', 3.00, 4, 'uploads/products/ketly.jpg', 0.00, 0, 'active', '2025-08-23 16:24:11', '2025-08-23 18:28:37'),
+(15, 3, 12, 'Dabur Hajmola Regular -120 Tab', '', 0.50, 14, 'uploads/products/hajmola.png', 0.00, 0, 'active', '2025-08-23 16:42:45', '2025-08-23 18:28:37'),
+(16, 3, 12, 'Combo Dry Fruits Pack Each of 100 Gm ( Cashew Kaju, Almonds, Walnut, Raisins and Pista)', '', 4.00, 10, 'uploads/products/dryfruit.png', 0.00, 0, 'active', '2025-08-23 16:43:51', '2025-08-23 17:15:56'),
+(17, 1, 1, 'Over The Head FRONTECH HF 3448 Wired Multimedia Headphone Dual 3.5mm Jack', '', 3.00, 10, 'uploads/products/headphone.png', 0.00, 0, 'active', '2025-08-23 16:49:23', '2025-08-23 17:16:12'),
+(18, 1, 1, 'Bluetooth Selfie Sticks R1s with Remote and Selfie Light, 3-in-1 Multifunctional Selfie Stick Tripod', '', 2.00, 9, 'uploads/products/selfiestick.png', 0.00, 0, 'active', '2025-08-23 16:50:53', '2025-08-28 17:14:43'),
+(19, 1, 1, 'Rock 10000mAh Powerbank ll Magsafe Wireless Powerbank ll Fast Charging PD ll 15W Wireless Charging l', '', 10.00, 6, 'uploads/products/powerbank.png', 0.00, 0, 'active', '2025-08-23 16:52:36', '2025-08-28 17:14:43');
 
 -- --------------------------------------------------------
 
@@ -220,7 +296,8 @@ CREATE TABLE `shops` (
 INSERT INTO `shops` (`shop_id`, `trader_id`, `shop_name`, `description`, `status`, `created_at`) VALUES
 (1, 2, 'TechHub Electronics', 'Your one-stop shop for latest electronics', 'active', '2025-08-22 07:00:48'),
 (2, 3, 'Fashion Forward', 'Trendy clothes and accessories', 'active', '2025-08-22 07:00:48'),
-(3, 9, 'Thulo Pasal', 'Grocery stores', 'active', '2025-08-22 17:27:16');
+(3, 9, 'Thulo Pasal', 'Grocery stores', 'active', '2025-08-22 17:27:16'),
+(4, 11, 'Romi Bakery', 'Bakery shop', 'active', '2025-08-23 19:14:59');
 
 -- --------------------------------------------------------
 
@@ -250,14 +327,16 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `username`, `email`, `password`, `full_name`, `phone`, `address`, `role`, `status`, `violation_count`, `loyalty_points`, `created_at`, `updated_at`) VALUES
 (1, 'admin', 'admin@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'System Administrator', NULL, NULL, 'admin', 'active', 0, 0, '2025-08-22 07:00:48', '2025-08-22 07:00:48'),
-(2, 'trader1', 'trader1@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'John Electronics', '1234567890', '123 Tech Street', 'trader', 'active', 0, 0, '2025-08-22 07:00:48', '2025-08-22 07:00:48'),
-(3, 'trader2', 'trader2@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mary Fashion', '1234567891', '456 Style Avenue', 'trader', 'active', 0, 0, '2025-08-22 07:00:48', '2025-08-22 07:00:48'),
-(4, 'trader3', 'trader3@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Bob Sports', '1234567892', '789 Game Lane', 'trader', 'pending', 0, 0, '2025-08-22 07:00:48', '2025-08-22 07:00:48'),
-(5, 'trader4', 'trader4@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Alice Books', '1234567893', '321 Read Road', 'trader', 'active', 0, 0, '2025-08-22 07:00:48', '2025-08-22 07:00:48'),
-(6, 'trader5', 'trader5@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Tom Home', '1234567894', '654 House Hill', 'trader', 'active', 0, 0, '2025-08-22 07:00:48', '2025-08-22 07:00:48'),
-(7, 'customer1', 'customer1@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Sarah Johnson', '2234567890', '111 Buyer Blvd', 'customer', 'active', 0, 162054, '2025-08-22 07:00:48', '2025-08-23 06:33:07'),
-(8, 'customer2', 'customer2@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Mike Wilson', '2234567891', '222 Shop Street', 'customer', 'active', 0, 100, '2025-08-22 07:00:48', '2025-08-22 07:00:48'),
-(9, 'Padam', 'thulopasal567@gmail.com', '$2y$10$Jqyf8vJF1Aiq7uihaKVQM.2d9TDD5.8TtYZ2g1enqs0XRFuuyvWdG', 'Padam Thapa Magar', '9861040699', 'jwagal, 10 lalitpur', 'trader', 'active', 1, 0, '2025-08-22 17:27:16', '2025-08-22 21:53:31');
+(2, 'trader1', 'trader1@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Thu Electronics', '1234567890', '123 Tech Street', 'trader', 'active', 0, 0, '2025-08-22 07:00:48', '2025-08-23 16:36:21'),
+(3, 'trader2', 'trader2@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Queen Boutique', '1234567891', '456 Style Avenue', 'trader', 'active', 0, 0, '2025-08-22 07:00:48', '2025-08-23 16:36:08'),
+(4, 'trader3', 'trader3@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Online Kinbech', '1234567892', '789 Game Lane', 'trader', 'pending', 0, 0, '2025-08-22 07:00:48', '2025-08-23 16:35:53'),
+(5, 'trader4', 'trader4@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Big Mart', '1234567893', '321 Read Road', 'trader', 'active', 0, 0, '2025-08-22 07:00:48', '2025-08-23 16:35:30'),
+(6, 'trader5', 'trader5@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Anil Thapa ', '9814489298', 'Thapathali, Kathmandu ', 'trader', 'active', 0, 0, '2025-08-22 07:00:48', '2025-08-23 16:34:54'),
+(7, 'customer1', 'customer1@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Sarah Gurung', '9806684477', 'Bijuli Bajar, Kathmandu', 'customer', 'active', 0, 162066, '2025-08-22 07:00:48', '2025-08-28 17:14:43'),
+(8, 'customer2', 'customer2@shopfusion.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Sujal Khadka', '9861040669', 'Bhotahiti, Kathmandu', 'customer', 'active', 0, 100, '2025-08-22 07:00:48', '2025-08-23 16:32:51'),
+(9, 'Padam', 'thulopasal567@gmail.com', '$2y$10$Jqyf8vJF1Aiq7uihaKVQM.2d9TDD5.8TtYZ2g1enqs0XRFuuyvWdG', 'Padam Thapa Magar', '9861040699', 'jwagal, 10 lalitpur', 'trader', 'active', 1, 3, '2025-08-22 17:27:16', '2025-08-23 18:28:37'),
+(10, 'sagarchaudary', 'sagarchaudary@gamil.com', '$2y$10$GAb0IqxLckiPuX16gBxYFuU9hzSQ2K4HAas8yEtIdVvaJwS93D1wq', 'Romi Bakery', '', '', 'customer', 'active', 0, 0, '2025-08-23 19:12:52', '2025-08-23 19:12:52'),
+(11, 'sagarchaudary1', 'sagar567@gamil.com', '$2y$10$FfO/9p61s0EKG/sAwrXyz.43W4rW0Wm8b1Exta1jeTO0Rdtcr2d/i', 'Sagar Chaudary', '9115848205', 'jwagal, 10 lalitpur', 'trader', 'pending', 0, 0, '2025-08-23 19:14:59', '2025-08-23 19:14:59');
 
 -- --------------------------------------------------------
 
@@ -288,6 +367,19 @@ INSERT INTO `violations` (`violation_id`, `reported_user_id`, `reporter_id`, `vi
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `ai_review_analysis_cache`
+--
+ALTER TABLE `ai_review_analysis_cache`
+  ADD PRIMARY KEY (`product_id`);
+
+--
+-- Indexes for table `ai_review_moderation`
+--
+ALTER TABLE `ai_review_moderation`
+  ADD PRIMARY KEY (`moderation_id`),
+  ADD KEY `idx_product_created` (`product_id`,`created_at`);
 
 --
 -- Indexes for table `cart_items`
@@ -372,34 +464,40 @@ ALTER TABLE `violations`
 --
 
 --
+-- AUTO_INCREMENT for table `ai_review_moderation`
+--
+ALTER TABLE `ai_review_moderation`
+  MODIFY `moderation_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `product_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `promo_codes`
@@ -417,13 +515,13 @@ ALTER TABLE `reviews`
 -- AUTO_INCREMENT for table `shops`
 --
 ALTER TABLE `shops`
-  MODIFY `shop_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `shop_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `violations`

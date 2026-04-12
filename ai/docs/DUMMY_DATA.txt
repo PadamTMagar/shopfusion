@@ -1,0 +1,44 @@
+Dummy Review Data
+=================
+
+Purpose
+-------
+The current system does not yet have enough live reviews for a polished review experience.
+To support UI presentation and testing, demo review content was added under:
+
+- ai/demo/dummy_reviews.php
+
+How it works
+------------
+- If a product has real reviews in the database, those are used normally.
+- If a product has no real reviews, the system loads demo reviews for display and AI summary generation.
+- Demo reviews are clearly labeled on the product page so they are not presented as real customer submissions.
+
+What the dummy reviews include
+------------------------------
+- customer display names
+- realistic review comments
+- star ratings
+- realistic review dates
+- helpful-count style metadata
+- short review titles for highlighted cards
+
+Review themes covered
+---------------------
+- product quality
+- packaging
+- delivery speed
+- price/value
+- comfort or fit where relevant
+- durability or performance where relevant
+
+Matching logic
+--------------
+- The demo review loader tries to match by product name keywords
+- If no close keyword match is found, it falls back to a default demo review set
+
+Maintenance
+-----------
+- Add or adjust review sets in `ai/demo/dummy_reviews.php`
+- Keep demo data realistic, short, and product-appropriate
+- Keep the on-page demo label if the site is not using live customer review data

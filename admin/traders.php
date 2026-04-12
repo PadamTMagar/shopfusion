@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // admin/traders.php - Trader Management
 require_once '../config/database.php';
 require_once '../includes/session.php';
@@ -563,5 +563,7 @@ try {
             }, 30000); // Check every 30 seconds
         }
     </script>
+
+    <link rel='stylesheet' href='../css/theme-refresh.css'>
 </body>
 </html>

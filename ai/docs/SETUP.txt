@@ -1,0 +1,42 @@
+ShopFusion AI Setup
+===================
+
+1. Environment variable
+Set the OpenAI API key on the server:
+
+OPENAI_API_KEY=your_openai_api_key_here
+
+Optional model overrides:
+- OPENAI_CHAT_MODEL
+- OPENAI_REVIEW_MODEL
+
+Default models:
+- Chatbot: gpt-4o-mini
+- Review AI: gpt-4o-mini
+
+2. Apache / shared hosting
+The AI module includes an `ai/.htaccess` file that:
+- disables directory listing
+- blocks direct access to `config`, `includes`, `logs`, and `docs`
+
+3. Database
+No manual database import is required for the AI tables in normal operation.
+The module creates these tables automatically when review AI is used:
+- ai_review_moderation
+- ai_review_analysis_cache
+
+If your hosting account does not allow CREATE TABLE permissions, create them manually with equivalent schema before using review AI.
+
+4. Permissions
+Make sure PHP can write inside:
+- ai/logs/
+
+5. Testing after setup
+- Open the homepage or a product page and use the AI chat button
+- Open a product page with reviews and confirm the AI review analysis card loads
+- Submit a customer review and verify moderation runs before publishing
+
+6. Security reminders
+- Never hardcode the OpenAI key in PHP templates, JS, or CSS
+- Keep `display_errors` disabled on production
+- Keep HTTPS enabled in production

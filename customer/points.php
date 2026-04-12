@@ -3,6 +3,7 @@
 require_once '../config/database.php';
 require_once '../includes/session.php';
 require_once '../includes/functions.php';
+require_once '../ai/includes/bootstrap.php';
 
 // Require customer access
 requireLogin();
@@ -119,6 +120,8 @@ if ($flashError = getFlashMessage('error')) {
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/theme.css">
     <link rel="stylesheet" href="../css/customer.css">
+    <link rel="stylesheet" href="../css/theme-refresh.css">
+    <?php echo ai_render_head_assets('..'); ?>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="customer-body">
@@ -548,6 +551,10 @@ if ($flashError = getFlashMessage('error')) {
     <?php include '../includes/footer.php'; ?>
 
     <script src="../js/main.js"></script>
+    <?php echo ai_render_chat_widget('..', [
+        'page_type' => 'points',
+        'page_title' => 'Loyalty Points - ShopFusion',
+    ]); ?>
     <script>
         // Show more history functionality
         function showMoreHistory() {

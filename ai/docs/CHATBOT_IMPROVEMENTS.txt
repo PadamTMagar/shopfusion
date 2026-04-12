@@ -1,0 +1,46 @@
+Chatbot Improvements
+====================
+
+What changed
+------------
+- Improved the visual styling of the chatbot widget
+- Matched the chatbot color system more closely to the main storefront refresh
+- Added a clearer welcome message
+- Added more useful quick-action suggestions
+- Improved mobile spacing and readability
+- Added typing/loading indicator
+- Improved error-state messaging
+- Improved suggestion chip interactions
+
+Quick actions added
+-------------------
+- Track my order
+- Return policy
+- Payment options
+- Delivery info
+- Best-selling products
+- Tell me about this product (on product pages)
+
+Behavior improvements
+---------------------
+- Better first-message guidance
+- Better auto-scroll behavior for new messages
+- Better fallback responses for:
+  - order-related help
+  - delivery questions
+  - payment questions
+  - return/refund policy
+  - best-selling product guidance
+
+UX goals supported
+------------------
+- Reduce support friction during shopping
+- Make the chatbot feel native to the store
+- Keep answers short and practical
+- Improve trust by keeping support visible but not intrusive
+- Keep the chatbot visually consistent with the rest of the ecommerce system
+
+Security note
+-------------
+- The chatbot still uses the PHP backend only for OpenAI access
+- No API key is exposed in frontend files

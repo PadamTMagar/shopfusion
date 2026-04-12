@@ -1,0 +1,10 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule ^(?:config|docs|includes|logs)(?:/|$) - [F,L,NC]
+</IfModule>
+
+<FilesMatch "\.(txt|log|env|ini)$">
+    Require all denied
+</FilesMatch>

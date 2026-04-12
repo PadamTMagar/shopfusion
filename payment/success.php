@@ -3,6 +3,7 @@
 require_once '../config/database.php';
 require_once '../includes/session.php';
 require_once '../includes/functions.php';
+require_once '../ai/includes/bootstrap.php';
 
 // Require login
 requireLogin();
@@ -71,6 +72,7 @@ $deliveryDate = date('M j, Y', strtotime('+7 days'));
     
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/theme.css">
+    <?php echo ai_render_head_assets('..'); ?>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -835,5 +837,11 @@ $deliveryDate = date('M j, Y', strtotime('+7 days'));
             }
         }
     </style>
+
+    <link rel="stylesheet" href="../css/theme-refresh.css">
+    <?php echo ai_render_chat_widget('..', [
+        'page_type' => 'order_success',
+        'page_title' => 'Order Confirmation - ShopFusion',
+    ]); ?>
 </body>
 </html>

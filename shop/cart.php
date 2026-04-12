@@ -3,6 +3,7 @@
 require_once '../config/database.php';
 require_once '../includes/session.php';
 require_once '../includes/functions.php';
+require_once '../ai/includes/bootstrap.php';
 
 $error = '';
 $success = '';
@@ -71,6 +72,7 @@ if ($flashError = getFlashMessage('error')) {
     
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/theme.css">
+    <?php echo ai_render_head_assets('..'); ?>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -422,6 +424,10 @@ if ($flashError = getFlashMessage('error')) {
 
     <script src="../js/main.js"></script>
     <script src="../js/cart.js"></script>
+    <?php echo ai_render_chat_widget('..', [
+        'page_type' => 'cart',
+        'page_title' => 'Shopping Cart - ShopFusion',
+    ]); ?>
     
     <script>
         // Cart page specific functionality
@@ -1182,5 +1188,6 @@ if ($flashError = getFlashMessage('error')) {
             }
         }
     </style>
+    <link rel="stylesheet" href="../css/theme-refresh.css">
 </body>
 </html>

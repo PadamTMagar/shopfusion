@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // auth/login.php
 require_once '../config/database.php';
 require_once '../includes/session.php';
@@ -89,47 +89,18 @@ function mergeGuestCart($userId) {
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/theme.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
-    <style>
-       
-        .auth-card {
-            border-top: 6px solid #ffa14a;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        }
-        .auth-header h1 a {
-            color: #0f375e;
-            text-decoration: none;
-        }
-        .btn-primary {
-            background-color: #0f375e;
-            border: none;
-        }
-        .btn-primary:hover {
-            background-color: #ffa14a;
-            color: #0f375e;
-        }
-        a {
-            color: #ffa14a;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        .demo-btn:hover {
-            background: var(--accent-color);
-            color: #fff;
-            border-color: var(--accent-color);
-        }
-    </style>
 </head>
 <body class="auth-page">
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
                 <div class="logo">
-                    <h1><a href="../index.php">Shopfusion</a></h1>
+                    <a href="../index.php" aria-label="ShopFusion homepage">
+                        <img src="../images/logo.png" alt="ShopFusion logo" class="logo-image">
+                    </a>
                 </div>
                 <h2>Welcome Back</h2>
-                <p>Sign in to continue shopping with <strong>Shopfusion</strong></p>
+                <p>Sign in to continue shopping with faster search, cleaner checkout, and guided support whenever you need it.</p>
             </div>
 
             <?php if ($error): ?>
@@ -156,8 +127,8 @@ function mergeGuestCart($userId) {
             <form method="POST" class="auth-form">
                 <div class="form-group">
                     <label for="email">Email Address</label>
-                    <div class="input-icon" >
-                        <!-- <i class="fas fa-envelope"></i> -->
+                    <div class="input-icon">
+                        <i class="fas fa-envelope"></i>
                         <input type="email" id="email" name="email" required 
                                value="<?php echo htmlspecialchars($email); ?>"
                                placeholder="Enter your email">
@@ -166,12 +137,12 @@ function mergeGuestCart($userId) {
 
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <div class="input-icon" >
-                        <!-- <i class="fas fa-lock"></i> -->
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
                         <input type="password" id="password" name="password" required
                                placeholder="Enter your password">
                         <button type="button" class="password-toggle" onclick="togglePassword('password')">
-                            <!-- <i class="fas fa-eye"></i> -->
+                            <i class="fas fa-eye"></i>
                         </button>
                     </div>
                 </div>
@@ -196,26 +167,22 @@ function mergeGuestCart($userId) {
             </div>
 
             <div class="demo-accounts">
-                <h4>Accounts (Click to auto-fill)</h4>
+                <h4>Demo Accounts</h4>
                 <div class="demo-buttons">
-                    <!-- <button type="button" class="demo-btn" onclick="fillDemo('admin@shopfusion.com', 'password')">
-                        <i class="fas fa-user-shield"></i>
-                        Admin 
-                    </button> -->
                     <button type="button" class="demo-btn" onclick="fillDemo('trader1@shopfusion.com', 'password')">
                         <i class="fas fa-store"></i>
-                        Trader 
+                        Trader
                     </button>
                     <button type="button" class="demo-btn" onclick="fillDemo('customer1@shopfusion.com', 'password')">
                         <i class="fas fa-user"></i>
-                        Customer 
+                        Customer
                     </button>
                 </div>
             </div>
 
             <div class="auth-footer">
                 <p>Don't have an account? <a href="register.php">Sign up here</a></p>
-                <p><a href="../index.php">← Back to Homepage</a></p>
+                <p><a href="../index.php">Back to homepage</a></p>
             </div>
         </div>
     </div>
@@ -244,5 +211,7 @@ function mergeGuestCart($userId) {
 
         document.getElementById('email').focus();
     </script>
+
+    <link rel='stylesheet' href='../css/theme-refresh.css'>
 </body>
 </html>

@@ -3,6 +3,7 @@
 require_once '../config/database.php';
 require_once '../includes/session.php';
 require_once '../includes/functions.php';
+require_once '../ai/includes/bootstrap.php';
 
 // Require login for checkout
 requireLogin();
@@ -243,6 +244,7 @@ if ($flashError = getFlashMessage('error')) {
     
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/theme.css">
+    <?php echo ai_render_head_assets('..'); ?>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -565,6 +567,10 @@ if ($flashError = getFlashMessage('error')) {
     </footer>
 
     <script src="../js/main.js"></script>
+    <?php echo ai_render_chat_widget('..', [
+        'page_type' => 'checkout',
+        'page_title' => 'Checkout - ShopFusion',
+    ]); ?>
     
     <script>
         // Checkout page functionality
@@ -1067,5 +1073,6 @@ if ($flashError = getFlashMessage('error')) {
             }
         }
     </style>
+    <link rel="stylesheet" href="../css/theme-refresh.css">
 </body>
 </html>

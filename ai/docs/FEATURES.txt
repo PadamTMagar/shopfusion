@@ -1,0 +1,35 @@
+AI Features
+===========
+
+1. Customer support chatbot
+- Floating chat widget for customer-facing pages
+- Clean responsive panel with clear user/bot message styling
+- Loading state while the backend request is processing
+- Product-aware support when used on a product page
+- Handles product, shipping, payment, and returns questions
+- Built to be extended for:
+  - order tracking
+  - stock checking
+  - product search
+  - FAQ retrieval
+
+2. Review moderation
+- Runs before a review is saved
+- Rejects spam-like links and abusive content
+- Uses OpenAI when configured
+- Falls back to local moderation rules if AI is unavailable
+- Stores moderation results in `ai_review_moderation`
+
+3. Review analysis
+- Generates a short summary
+- Extracts pros
+- Extracts cons
+- Assigns sentiment
+- Uses structured JSON handling
+- Caches results in `ai_review_analysis_cache`
+
+4. UI improvements
+- Better review card spacing and alignment
+- Consistent AI analysis panel styling
+- Cleaner chat layout
+- Responsive behavior for smaller screens

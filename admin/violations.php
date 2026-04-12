@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // admin/violations.php - Violations Management
 require_once '../config/database.php';
 require_once '../includes/session.php';
@@ -540,5 +540,7 @@ $violationTypes = [
             });
         });
     </script>
+
+    <link rel='stylesheet' href='../css/theme-refresh.css'>
 </body>
 </html>

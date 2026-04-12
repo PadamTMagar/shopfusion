@@ -1,0 +1,69 @@
+UI Improvements
+===============
+
+Overview
+--------
+The UI refresh focuses on consistency, trust, and readability across customer-facing pages and the available dashboard views.
+
+Main visual improvements
+------------------------
+- Added a stronger shared design system with:
+  - cleaner color hierarchy
+  - more consistent border radius
+  - softer but more premium shadows
+  - stronger CTA buttons
+  - more consistent cards, forms, and status badges
+- Extended the shared refresh so it now also covers:
+  - auth pages
+  - admin and trader list/table screens
+  - filter bars and search/filter controls
+  - empty states and helper panels
+  - equal-height product-card behavior across shelves and catalogs
+- Improved the sticky header feel with a cleaner modern surface and better spacing
+- Refined the footer appearance for a more complete branded finish
+- Improved responsive spacing and alignment across key layouts
+
+Homepage improvements
+---------------------
+- Replaced the weak top-of-page feel with a more useful ecommerce utility strip
+- Rebuilt the hero section to feel more trustworthy and conversion-ready
+- Added visible trust messaging and marketplace value cues
+- Added category showcase cards
+- Added featured products shelf
+- Added best-selling products shelf
+- Added new arrivals shelf
+- Added trust/benefits section
+- Added FAQ section
+
+Product page improvements
+-------------------------
+- Strengthened the review summary presentation
+- Added rating distribution bars
+- Added highlighted review cards
+- Added buyer-confidence messaging
+- Added sticky add-to-cart area on larger screens
+- Improved review layout readability and spacing
+
+Cart, checkout, and payment improvements
+----------------------------------------
+- Improved summary card appearance
+- Improved card consistency and readability
+- Improved visual emphasis on totals and primary actions
+- Improved trust-related microcopy and visual clarity
+
+Customer, trader, and admin panel improvements
+----------------------------------------------
+- Improved sidebar feel and consistency
+- Improved dashboard cards and stat visibility
+- Improved topbar presentation
+- Improved table readability and spacing
+- Improved action-button consistency
+- Standardized more management pages that previously rendered with the older visual system only
+
+Responsiveness
+--------------
+- Better header behavior on smaller screens
+- Better stacking for hero layout and cards
+- Better dashboard/sidebar behavior on tablets and mobile
+- Better button stacking on narrow screens
+- Better filter-form wrapping and auth-form layout on smaller screens

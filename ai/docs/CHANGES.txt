@@ -1,0 +1,47 @@
+AI Integration Change Log
+=========================
+
+Created:
+- ai/.htaccess
+- ai/config/config.php
+- ai/includes/helpers.php
+- ai/includes/openai_client.php
+- ai/includes/chat_service.php
+- ai/includes/review_service.php
+- ai/includes/bootstrap.php
+- ai/api/chat.php
+- ai/api/review_moderate.php
+- ai/api/review_summary.php
+- ai/js/chat.js
+- ai/js/review.js
+- ai/css/ai.css
+- ai/demo/dummy_reviews.php
+- ai/docs/README.txt
+- ai/docs/SETUP.txt
+- ai/docs/API_USAGE.txt
+- ai/docs/FEATURES.txt
+- ai/docs/UI_IMPROVEMENTS.txt
+- ai/docs/CHATBOT_IMPROVEMENTS.txt
+- ai/docs/DUMMY_DATA.txt
+- ai/docs/CHANGES.txt
+- ai/logs/.gitkeep
+
+Expected integration updates outside the AI folder:
+- customer-facing page includes for AI CSS/JS/widget output
+- review submission updates to call AI moderation
+- product page update to render AI review analysis
+- shared theme refresh styling to improve page consistency
+
+Behavior changes:
+- Reviews can now be blocked before publishing if they fail moderation
+- Product pages can show summarized review insights
+- Storefront pages can expose an AI support assistant without exposing secrets
+- Product pages can show clearly labeled demo reviews when no live reviews exist yet
+
+Additional UI/UX standardization pass:
+- Extended `css/theme-refresh.css` to standardize product cards, filters, forms, tables, auth pages, empty states, and dashboard surfaces
+- Added the shared refresh stylesheet to the remaining admin, trader, and auth templates
+- Improved login and registration UX by restoring visible field icons, fixing password-toggle behavior, and fixing the role-switch interaction
+- Added a homepage utility strip for delivery, payment, return, and support trust cues
+- Styled the chatbot to better match the store-wide design language
+- Fixed the previously empty `shop/search.php` route by redirecting it into the storefront search flow

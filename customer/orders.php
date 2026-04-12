@@ -3,6 +3,8 @@
 require_once '../config/database.php';
 require_once '../includes/session.php';
 require_once '../includes/functions.php';
+require_once '../ai/includes/bootstrap.php';
+require_once '../ai/includes/review_service.php';
 
 // Require customer access
 requireLogin();
@@ -62,9 +64,12 @@ if ($_POST && isset($_POST['action'])) {
             $productId = intval($_POST['product_id']);
             $orderId = intval($_POST['order_id']);
             $rating = intval($_POST['rating']);
-            $comment = sanitize($_POST['comment']);
+            $comment = ai_clean_text($_POST['comment'] ?? '', 1500);
+            $productName = ai_clean_text($_POST['product_name'] ?? '', 120);
             
-            if ($rating >= 1 && $rating <= 5) {
+            if (!validateCSRFToken($_POST['csrf_token'] ?? '')) {
+                $error = "Your session token expired. Please refresh and try again.";
+            } elseif ($rating >= 1 && $rating <= 5 && $comment !== '') {
                 // Verify customer bought this product
                 $stmt = $pdo->prepare("
                     SELECT oi.* FROM order_items oi
@@ -84,6 +89,20 @@ if ($_POST && isset($_POST['action'])) {
                     
                     if (!$stmt->fetch()) {
                         try {
+                            $reviewAi = new AI_Review_Service();
+                            $moderation = $reviewAi->moderateReview($pdo, [
+                                'product_id' => $productId,
+                                'customer_id' => $currentUser['user_id'],
+                                'rating' => $rating,
+                                'comment' => $comment,
+                                'product_name' => $productName,
+                            ]);
+
+                            if ($moderation['decision'] !== 'approved') {
+                                $error = $moderation['reason'] ?: "This review could not be published.";
+                                break;
+                            }
+
                             $pdo->beginTransaction();
                             
                             // Insert review
@@ -97,10 +116,22 @@ if ($_POST && isset($_POST['action'])) {
                             updateProductRating($productId);
                             
                             $pdo->commit();
+
+                            try {
+                                $reviewAi->getProductAnalysis($pdo, $productId, true);
+                            } catch (Exception $analysisException) {
+                                ai_write_log('review_errors', [
+                                    'error' => $analysisException->getMessage(),
+                                    'product_id' => $productId,
+                                ]);
+                            }
+
                             $success = "Review added successfully!";
                             setFlashMessage('success', $success);
                         } catch (PDOException $e) {
-                            $pdo->rollBack();
+                            if ($pdo->inTransaction()) {
+                                $pdo->rollBack();
+                            }
                             $error = "Failed to add review.";
                         }
                     } else {
@@ -110,7 +141,7 @@ if ($_POST && isset($_POST['action'])) {
                     $error = "You can only review products you have purchased.";
                 }
             } else {
-                $error = "Please provide a valid rating (1-5 stars).";
+                $error = "Please provide a valid rating (1-5 stars) and a short review.";
             }
             break;
     }
@@ -236,6 +267,8 @@ if ($flashError = getFlashMessage('error')) {
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/theme.css">
     <link rel="stylesheet" href="../css/customer.css">
+    <link rel="stylesheet" href="../css/theme-refresh.css">
+    <?php echo ai_render_head_assets('..'); ?>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="customer-body">
@@ -581,6 +614,8 @@ if ($flashError = getFlashMessage('error')) {
                     <input type="hidden" name="product_id" id="reviewProductId">
                     <input type="hidden" name="order_id" id="reviewOrderId">
                     <input type="hidden" name="rating" id="reviewRating" value="5">
+                    <input type="hidden" name="product_name" id="reviewProductNameInput">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(ai_get_csrf_token()); ?>">
                     
                     <div class="review-product">
                         <h4 id="reviewProductName"></h4>
@@ -601,6 +636,7 @@ if ($flashError = getFlashMessage('error')) {
                         <label for="reviewComment">Your Review:</label>
                         <textarea id="reviewComment" name="comment" rows="4" 
                                   placeholder="Share your experience with this product..."></textarea>
+                        <small class="form-text">AI moderation checks for spam and unsafe content before publishing.</small>
                     </div>
                     
                     <div class="modal-actions">
@@ -619,12 +655,17 @@ if ($flashError = getFlashMessage('error')) {
     <?php include '../includes/footer.php'; ?>
 
     <script src="../js/main.js"></script>
+    <?php echo ai_render_chat_widget('..', [
+        'page_type' => 'orders',
+        'page_title' => 'My Orders - ShopFusion',
+    ]); ?>
     <script>
         // Review modal functionality
         function openReviewModal(productId, orderId, productName) {
             document.getElementById('reviewProductId').value = productId;
             document.getElementById('reviewOrderId').value = orderId;
             document.getElementById('reviewProductName').textContent = productName;
+            document.getElementById('reviewProductNameInput').value = productName;
             document.getElementById('reviewModal').style.display = 'flex';
             
             // Reset rating
